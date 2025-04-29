@@ -49,7 +49,7 @@ Wants to understand mood patterns and manage emotions better.
 
 -  Mood Logging with Emojis + Notes  
 -  Calendar with mood entries (color-coded)  
--  Statistics: Pie + Bar Charts  
+-  Statistics: Pie Charts  
 -  Profile & Settings (Edit, Change Password, View App Info)  
 -  Firebase-authenticated, secure data
 
@@ -67,7 +67,7 @@ Wants to understand mood patterns and manage emotions better.
 ##  Tech Stack
 
 - React Native (with Expo)  
-- Firebase Auth, Firestore, Storage  
+- Firebase Auth, Firestore
 - React Navigation  
 - react-native-calendars  
 - react-native-chart-kit  
