@@ -4,11 +4,11 @@
     "slug": "MoodJournalApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/applogo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/logo.png",
+      "image": "./assets/applogo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffd799"
     },
@@ -17,12 +17,21 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.png",
+        "foregroundImage": "./assets/applogo.png",
         "backgroundColor": "#ffd799"
-      }
+      },
+      "package": "com.nancy_aurora.MoodJournalApp",
+      "permissions": [],
+      "versionCode": 1
     },
     "web": {
-      "favicon": "./assets/logo.png"
-    }
+      "favicon": "./assets/applogo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f8accd47-fa13-4e90-9bf9-80ab7a93036c"
+      }
+    },
+    "owner": "nancy_aurora"
   }
 }

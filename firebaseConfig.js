@@ -1,14 +1,8 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics, isSupported } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-import { initializeAuth, getReactNativePersistence } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAEHPrwgAIJuCBQDPFscREa3HTs5vODBTU",
   authDomain: "moodjournalapp-a3999.firebaseapp.com",
@@ -19,21 +13,22 @@ const firebaseConfig = {
   measurementId: "G-T1GTBBFX97"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app, auth, db, analytics;
 
-// Initialize Analytics only if supported
-let analytics = null;
-isSupported().then(yes => {
-  if (yes) {
-    analytics = getAnalytics(app);
-  }
-});
+try {
+  // Initialize Firebase
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
 
-// Initialize Auth with persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});
+  // Initialize Analytics only if supported (for web only)
+  isSupported().then(yes => {
+    if (yes) {
+      analytics = getAnalytics(app);
+    }
+  });
+} catch (error) {
+  console.error('Firebase initialization error: ', error);
+}
 
-export const db = getFirestore(app);
-export { auth, analytics };
+export { app, auth, db, analytics };

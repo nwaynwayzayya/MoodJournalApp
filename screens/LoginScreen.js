@@ -29,7 +29,7 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigation.replace('MainTabs');
+      // navigation.replace('MainTabs'); // Removed, handled by App.js
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert('Error', 'Invalid email or password. Please try again.');

@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from './firebaseConfig';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Text, LogBox, AppState, Platform } from 'react-native';
+import { enableScreens } from 'react-native-screens';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+// Enable screens before any navigation happens
+enableScreens();
 
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignUpScreen';
@@ -63,14 +68,95 @@ function MainTabs() {
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isReady, setIsReady] = useState(false);
+  const appState = useRef(AppState.currentState);
+  const initializationComplete = useRef(false);
+
+  // Ignore specific warnings
+  LogBox.ignoreLogs([
+    'AsyncStorage has been extracted from react-native core',
+    'Setting a timer',
+  ]);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
-      setLoading(false);
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('App has come to the foreground');
+      }
+      appState.current = nextAppState;
     });
-    return unsubscribe;
+
+    return () => {
+      subscription.remove();
+    };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    let unsubscribe;
+
+    const initializeApp = async () => {
+      try {
+        // Add a longer delay for Android to ensure everything is initialized
+        const delay = Platform.OS === 'android' ? 500 : 100;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        if (!isMounted) return;
+
+        unsubscribe = auth.onAuthStateChanged(
+          (user) => {
+            if (!isMounted || initializationComplete.current) return;
+            console.log('Auth state changed:', user ? 'User logged in' : 'No user');
+            setUser(user);
+            setLoading(false);
+            setIsReady(true);
+            initializationComplete.current = true;
+          },
+          (error) => {
+            if (!isMounted || initializationComplete.current) return;
+            console.error('Auth error:', error);
+            setError(error.message);
+            setLoading(false);
+            setIsReady(true);
+            initializationComplete.current = true;
+          }
+        );
+      } catch (error) {
+        if (!isMounted || initializationComplete.current) return;
+        console.error('Initialization error:', error);
+        setError(error.message);
+        setLoading(false);
+        setIsReady(true);
+        initializationComplete.current = true;
+      }
+    };
+
+    initializeApp();
+
+    return () => {
+      isMounted = false;
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, []);
+
+  if (!isReady) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#d86553" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+        <Text style={{ color: 'red', textAlign: 'center' }}>Error: {error}</Text>
+      </View>
+    );
+  }
 
   if (loading) {
     return (
@@ -81,28 +167,30 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        {user ? (
-          <>
-            <Stack.Screen name="MainTabs" component={MainTabs} />
-            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-            <Stack.Screen name="ChangeEmail" component={ChangeEmailScreen} />
-            <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-            <Stack.Screen name="About" component={AboutScreen} />
-            <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
-          </>
-        ) : (
-          <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="SignUp" component={SignupScreen} />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          {user ? (
+            <>
+              <Stack.Screen name="MainTabs" component={MainTabs} />
+              <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+              <Stack.Screen name="ChangeEmail" component={ChangeEmailScreen} />
+              <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+              <Stack.Screen name="About" component={AboutScreen} />
+              <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+            </>
+          ) : (
+            <>
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="SignUp" component={SignupScreen} />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
