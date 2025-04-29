@@ -32,7 +32,10 @@ export default function SettingsScreen({ navigation }) {
 
   const handleLogout = async () => {
     try {
+      console.log('Attempting to sign out...');
       await signOut(auth);
+      console.log('Sign out successful');
+      // The auth state change in App.js will handle the navigation
     } catch (error) {
       console.error('Error signing out:', error);
       Alert.alert('Error', 'Failed to sign out. Please try again.');

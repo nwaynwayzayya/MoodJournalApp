@@ -72,6 +72,7 @@ export default function App() {
   const [isReady, setIsReady] = useState(false);
   const appState = useRef(AppState.currentState);
   const initializationComplete = useRef(false);
+  const navigationRef = React.useRef();
 
   // Ignore specific warnings
   LogBox.ignoreLogs([
@@ -106,7 +107,7 @@ export default function App() {
 
         unsubscribe = auth.onAuthStateChanged(
           (user) => {
-            if (!isMounted || initializationComplete.current) return;
+            if (!isMounted) return;
             console.log('Auth state changed:', user ? 'User logged in' : 'No user');
             setUser(user);
             setLoading(false);
@@ -114,7 +115,7 @@ export default function App() {
             initializationComplete.current = true;
           },
           (error) => {
-            if (!isMounted || initializationComplete.current) return;
+            if (!isMounted) return;
             console.error('Auth error:', error);
             setError(error.message);
             setLoading(false);
@@ -123,7 +124,7 @@ export default function App() {
           }
         );
       } catch (error) {
-        if (!isMounted || initializationComplete.current) return;
+        if (!isMounted) return;
         console.error('Initialization error:', error);
         setError(error.message);
         setLoading(false);
@@ -141,6 +142,25 @@ export default function App() {
       }
     };
   }, []);
+
+  // Add a new effect to handle navigation when user state changes
+  useEffect(() => {
+    if (!isReady) return;
+    
+    if (user) {
+      // User is logged in
+      navigationRef.current?.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }],
+      });
+    } else {
+      // User is logged out
+      navigationRef.current?.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    }
+  }, [user, isReady]);
 
   if (!isReady) {
     return (
@@ -168,7 +188,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,

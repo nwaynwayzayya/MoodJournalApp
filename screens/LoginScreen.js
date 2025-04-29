@@ -28,11 +28,21 @@ export default function LoginScreen({ navigation }) {
 
     setLoading(true);
     try {
+      console.log('Attempting to sign in with:', email);
       await signInWithEmailAndPassword(auth, email, password);
-      // navigation.replace('MainTabs'); // Removed, handled by App.js
+      console.log('Login successful');
+      // The auth state change in App.js will handle the navigation
     } catch (error) {
       console.error('Login error:', error);
-      Alert.alert('Error', 'Invalid email or password. Please try again.');
+      let errorMessage = 'Invalid email or password. Please try again.';
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email format.';
+      }
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }

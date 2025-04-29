@@ -16,19 +16,29 @@ const firebaseConfig = {
 let app, auth, db, analytics;
 
 try {
+  console.log('Initializing Firebase...');
   // Initialize Firebase
   app = initializeApp(firebaseConfig);
+  console.log('Firebase app initialized successfully');
+  
   auth = getAuth(app);
+  console.log('Firebase auth initialized successfully');
+  
   db = getFirestore(app);
+  console.log('Firestore initialized successfully');
 
   // Initialize Analytics only if supported (for web only)
   isSupported().then(yes => {
     if (yes) {
       analytics = getAnalytics(app);
+      console.log('Analytics initialized successfully');
+    } else {
+      console.log('Analytics not supported in this environment');
     }
   });
 } catch (error) {
   console.error('Firebase initialization error: ', error);
+  throw error; // Re-throw the error to prevent the app from starting with invalid Firebase config
 }
 
 export { app, auth, db, analytics };
