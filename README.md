@@ -4,7 +4,7 @@ A simple and secure mood tracking app designed for children to help them express
 
 ---
 
-##  Installation
+## Installation
 
 1. **Download the APK:**  
    [Click here to download the MoodJournal APK](https://expo.dev/artifacts/eas/8T6k34PmCFfjJ4ifiZT8Qy.apk)
@@ -13,6 +13,13 @@ A simple and secure mood tracking app designed for children to help them express
    - Open the downloaded file from your File Manager.
    - Allow installation from unknown sources if prompted.
    - Tap "Install" to begin.
+
+---
+
+## Backup APK (in case the Expo link expires)
+
+If the above link doesn't work, you can download the APK from the GitHub release section here:  
+🔗 [Backup APK - GitHub Release v1.0](https://github.com/nwaynwayzayya/MoodJournalApp/releases/tag/v1.0)
 
 ---
 
